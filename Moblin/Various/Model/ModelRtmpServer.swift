@@ -32,6 +32,10 @@ extension Model {
         }
     }
 
+    func isRtmpStreamConnected(camera _: String) -> Bool {
+        return false
+    }
+
     func isRtmpStreamConnected(streamKey: String) -> Bool {
         return servers.rtmp?.isStreamConnected(streamKey: streamKey) ?? false
     }
@@ -64,18 +68,17 @@ extension Model {
             let latency = Double(stream.latency!) / 1000.0
             self.media.addBufferedVideo(cameraId: stream.id, name: name, latency: latency)
             self.media.addBufferedAudio(cameraId: stream.id, name: name, latency: latency)
-            if stream.autoSelectMic! {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.selectMicById(id: "\(stream.id) 0")
-                }
-            }
             self.markDjiIsStreamingIfNeeded(rtmpServerStreamId: stream.id)
-            self.updateMicsList()
+            self.markMicAsConnected(id: "\(stream.id) 0")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.switchMicIfNeeded()
+            }
         }
     }
 
     func handleRtmpServerPublishStop(streamKey: String, reason: String? = nil) {
         DispatchQueue.main.async {
+            // logger.info("xxx got rtmp stop")
             guard let stream = self.getRtmpStream(streamKey: streamKey) else {
                 return
             }
@@ -90,9 +93,8 @@ extension Model {
         }
         media.removeBufferedVideo(cameraId: stream.id)
         media.removeBufferedAudio(cameraId: stream.id)
-        if currentMic.id == "\(stream.id) 0" {
-            setMicFromSettings()
-        }
+        markMicAsDisconnected(id: "\(stream.id) 0")
+        switchMicIfNeeded()
         for device in database.djiDevices.devices {
             guard device.rtmpUrlType == .server, device.serverRtmpStreamId == stream.id else {
                 continue

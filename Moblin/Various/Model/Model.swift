@@ -61,18 +61,7 @@ func formatWarning(_ message: String) -> String {
     return "⚠️ \(message) ⚠️"
 }
 
-struct Mic: Identifiable, Hashable {
-    var id: String {
-        "\(inputUid) \(dataSourceID ?? 0)"
-    }
-
-    var name: String
-    var inputUid: String
-    var dataSourceID: NSNumber?
-    var builtInOrientation: SettingsMic?
-}
-
-let noMic = Mic(name: "", inputUid: "")
+let noMic = SettingsMicsMic()
 
 class ButtonState {
     var isOn: Bool
@@ -385,7 +374,6 @@ final class Model: NSObject, ObservableObject, @unchecked Sendable {
     @Published var lockScreen = false
     @Published var findFace = false
     @Published var currentMic = noMic
-    @Published var mics: [Mic] = []
     @Published var isLive = false
     @Published var isRecording = false
     @Published var browsers: [Browser] = []
@@ -930,7 +918,8 @@ final class Model: NSObject, ObservableObject, @unchecked Sendable {
         externalDisplayStreamPreviewView.videoGravity = .resizeAspect
         updateDigitalClock(now: Date())
         twitchChat = TwitchChat(delegate: self)
-        setMic()
+        updateMicsList()
+        selectMicById(id: database.mics.selectedId)
         reloadStream()
         resetSelectedScene()
         setupPeriodicTimers()
@@ -1062,7 +1051,6 @@ final class Model: NSObject, ObservableObject, @unchecked Sendable {
         gForceManager = GForceManager(motionManager: motionManager)
         startGForceManager()
         loadStealthModeImage()
-        updateMicsList()
     }
 
     @objc func applicationDidChangeActive(notification: NSNotification) {

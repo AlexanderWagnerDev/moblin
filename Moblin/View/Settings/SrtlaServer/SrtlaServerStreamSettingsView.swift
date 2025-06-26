@@ -131,18 +131,6 @@ struct SrtlaServerStreamSettingsView: View {
                 Text("The stream name is shown in the list of cameras in scene settings.")
             }
             Section {
-                Toggle("Auto select mic", isOn: Binding(get: {
-                    stream.autoSelectMic!
-                }, set: { value in
-                    stream.autoSelectMic = value
-                    model.reloadSrtlaServer()
-                    model.objectWillChange.send()
-                }))
-                .disabled(model.srtlaServerEnabled())
-            } footer: {
-                Text("Automatically select the stream's audio as mic when connected.")
-            }
-            Section {
                 if model.srtlaServerEnabled() {
                     ProtocolUrlsView(status: status, proto: "srt", port: srtPort, streamId: stream.streamId)
                     ProtocolUrlsView(status: status, proto: "srtla", port: srtlaPort, streamId: stream.streamId)

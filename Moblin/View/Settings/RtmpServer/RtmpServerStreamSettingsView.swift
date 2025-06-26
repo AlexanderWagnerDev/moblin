@@ -143,18 +143,6 @@ struct RtmpServerStreamSettingsView: View {
                 Text("The higher, the lower risk of stuttering.")
             }
             Section {
-                Toggle("Auto select mic", isOn: Binding(get: {
-                    stream.autoSelectMic!
-                }, set: { value in
-                    stream.autoSelectMic = value
-                    model.reloadRtmpServer()
-                    model.objectWillChange.send()
-                }))
-                .disabled(model.rtmpServerEnabled())
-            } footer: {
-                Text("Automatically select the stream's audio as mic when connected.")
-            }
-            Section {
                 if model.rtmpServerEnabled() {
                     ProtocolUrlsView(status: status, port: port, streamKey: stream.streamKey)
                 } else {

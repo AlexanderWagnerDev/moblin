@@ -208,6 +208,14 @@ struct StreamSettingsView: View {
                     """)
                 }
             }
+            DuplicateButtonView {
+                database.streams.append(stream.clone())
+            }
+            if !stream.enabled {
+                DeleteButtonView {
+                    database.streams.removeAll { $0 == stream }
+                }
+            }
         }
         .navigationTitle("Stream")
     }

@@ -326,6 +326,14 @@ struct SceneSettingsView: View {
                     SwipeLeftToRemoveHelpView(kind: String(localized: "a widget"))
                 }
             }
+            DuplicateButtonView {
+                database.scenes.append(scene.clone())
+                model.resetSelectedScene()
+            }
+            DeleteButtonView {
+                database.scenes.removeAll { $0 == scene }
+                model.resetSelectedScene()
+            }
         }
         .navigationTitle("Scene")
     }

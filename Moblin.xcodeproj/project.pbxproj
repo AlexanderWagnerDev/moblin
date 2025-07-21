@@ -42,7 +42,6 @@
 		0312E4372C00F24E00C6F878 /* Moblin Screen Recording.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 0312E42E2C00F24E00C6F878 /* Moblin Screen Recording.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0312E43D2C00F62400C6F878 /* SampleBufferCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352DDF22BFFCAA60079AC7B /* SampleBufferCommon.swift */; };
 		0312E4422C00F75A00C6F878 /* CommonUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B373FC2A9F35EF0028DDD5 /* CommonUtils.swift */; };
-		0315A33B2AA2FA7100295443 /* LocalListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0315A33A2AA2FA7100295443 /* LocalListener.swift */; };
 		0315A33D2AA2FA7D00295443 /* RemoteConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0315A33C2AA2FA7D00295443 /* RemoteConnection.swift */; };
 		0315A3462AA31E9000295443 /* StreamTwitchSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0315A3452AA31E9000295443 /* StreamTwitchSettingsView.swift */; };
 		0315A3672AA33C6A00295443 /* WidgetImageSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0315A3662AA33C6A00295443 /* WidgetImageSettingsView.swift */; };
@@ -479,6 +478,7 @@
 		03BDE2262B24656400DF193A /* StreamObsRemoteControlSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BDE2252B24656400DF193A /* StreamObsRemoteControlSettingsView.swift */; };
 		03BE1B292E0261E000521479 /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BE1B282E0261D100521479 /* FileStorage.swift */; };
 		03BE504A2B3EB59A004720AF /* IpMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BE50492B3EB59A004720AF /* IpMonitor.swift */; };
+		03C079312E2BFF910004CA22 /* SrtSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C079302E2BFF410004CA22 /* SrtSender.swift */; };
 		03C088372B0AFFA8000990DA /* InlinePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C088362B0AFFA8000990DA /* InlinePickerView.swift */; };
 		03C2C2832B5F906E00E2F30B /* SliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C2C2822B5F906E00E2F30B /* SliderView.swift */; };
 		03C354662CF5A5A500B8B29F /* TeslaSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C354652CF5A5A400B8B29F /* TeslaSettingsView.swift */; };
@@ -698,7 +698,6 @@
 		0312E4322C00F24E00C6F878 /* SampleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = "<group>"; };
 		0312E4342C00F24E00C6F878 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0312E4472C00FA5900C6F878 /* Moblin Screen Recording.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Moblin Screen Recording.entitlements"; sourceTree = "<group>"; };
-		0315A33A2AA2FA7100295443 /* LocalListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalListener.swift; sourceTree = "<group>"; };
 		0315A33C2AA2FA7D00295443 /* RemoteConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteConnection.swift; sourceTree = "<group>"; };
 		0315A3452AA31E9000295443 /* StreamTwitchSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamTwitchSettingsView.swift; sourceTree = "<group>"; };
 		0315A3662AA33C6A00295443 /* WidgetImageSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetImageSettingsView.swift; sourceTree = "<group>"; };
@@ -1165,6 +1164,7 @@
 		03BDE2252B24656400DF193A /* StreamObsRemoteControlSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamObsRemoteControlSettingsView.swift; sourceTree = "<group>"; };
 		03BE1B282E0261D100521479 /* FileStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		03BE50492B3EB59A004720AF /* IpMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IpMonitor.swift; sourceTree = "<group>"; };
+		03C079302E2BFF410004CA22 /* SrtSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SrtSender.swift; sourceTree = "<group>"; };
 		03C088362B0AFFA8000990DA /* InlinePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlinePickerView.swift; sourceTree = "<group>"; };
 		03C2C2822B5F906E00E2F30B /* SliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderView.swift; sourceTree = "<group>"; };
 		03C354652CF5A5A400B8B29F /* TeslaSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeslaSettingsView.swift; sourceTree = "<group>"; };
@@ -2010,6 +2010,7 @@
 		0359F8682BD3DA5F005BFDA8 /* Srt */ = {
 			isa = PBXGroup;
 			children = (
+				03C079302E2BFF410004CA22 /* SrtSender.swift */,
 				0359F8642BD3DA5F005BFDA8 /* SrtPerformanceData.swift */,
 				0359F8662BD3DA5F005BFDA8 /* SrtSocketOption.swift */,
 				0359F8672BD3DA5F005BFDA8 /* SrtStream.swift */,
@@ -2593,7 +2594,6 @@
 			isa = PBXGroup;
 			children = (
 				03B374122AA277570028DDD5 /* SrtlaClient.swift */,
-				0315A33A2AA2FA7100295443 /* LocalListener.swift */,
 				0315A33C2AA2FA7D00295443 /* RemoteConnection.swift */,
 			);
 			path = Client;
@@ -3794,6 +3794,7 @@
 				033A46EF2CD881AE00119CE3 /* CMVideoDimensions+Extension.swift in Sources */,
 				03FB4B2F2AD8CF83005AA183 /* BitratePresetsSettingsView.swift in Sources */,
 				03B373F92A9EFB340028DDD5 /* BatteryView.swift in Sources */,
+				03C079312E2BFF910004CA22 /* SrtSender.swift in Sources */,
 				037EBE772B666F66004D5774 /* DrawOnStreamView.swift in Sources */,
 				03B16A242B35612000E5AB07 /* RecordingsSettingsView.swift in Sources */,
 				031F413F2C6F167400790EEC /* WidgetAlertsSoundSettingsView.swift in Sources */,
@@ -4163,7 +4164,6 @@
 				0318B4132C845214002B4F58 /* QuickButtonChatView.swift in Sources */,
 				0332EF5E2B3CAEE400BC3C16 /* RtmpServerSettingsView.swift in Sources */,
 				031A2E002ADBE34F005CE350 /* DraggableItemPrefixView.swift in Sources */,
-				0315A33B2AA2FA7100295443 /* LocalListener.swift in Sources */,
 				03C357442D081CF000B8B29F /* RtmpAbortMessge.swift in Sources */,
 				035D37372AB230E700045B92 /* QuickButtonBitrateView.swift in Sources */,
 				0359F8C22BD3DA61005BFDA8 /* URL+Extension.swift in Sources */,

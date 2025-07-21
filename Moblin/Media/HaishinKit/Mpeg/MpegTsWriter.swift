@@ -5,7 +5,6 @@ var payloadSize = 1316
 
 protocol MpegTsWriterDelegate: AnyObject {
     func writer(_ writer: MpegTsWriter, doOutput data: Data)
-    func writer(_ writer: MpegTsWriter, doOutputPointer pointer: UnsafeRawBufferPointer, count: Int)
 }
 
 struct MpegTsTimecode {
@@ -168,31 +167,7 @@ class MpegTsWriter {
     }
 
     private func write(_ data: Data) {
-        writeBytes(data)
-    }
-
-    private func writePacket(_ data: Data) {
         delegate?.writer(self, doOutput: data)
-    }
-
-    private func writePacketPointer(pointer: UnsafeRawBufferPointer, count: Int) {
-        delegate?.writer(self, doOutputPointer: pointer, count: count)
-    }
-
-    private func writeBytes(_ data: Data) {
-        data.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
-            writeBytesPointer(pointer: pointer, count: data.count)
-        }
-    }
-
-    private func writeBytesPointer(pointer: UnsafeRawBufferPointer, count: Int) {
-        for offset in stride(from: 0, to: count, by: payloadSize) {
-            let length = min(payloadSize, count - offset)
-            writePacketPointer(
-                pointer: UnsafeRawBufferPointer(rebasing: pointer[offset ..< offset + length]),
-                count: length
-            )
-        }
     }
 
     private func appendVideoData(data: Data?) {
@@ -203,14 +178,7 @@ class MpegTsWriter {
 
     private func writeVideo(data: Data) {
         if let videoData = videoData[0] {
-            videoData.withUnsafeBytes { (pointer: UnsafeRawBufferPointer) in
-                writeBytesPointer(
-                    pointer: UnsafeRawBufferPointer(
-                        rebasing: pointer[videoDataOffset ..< videoData.count]
-                    ),
-                    count: videoData.count - videoDataOffset
-                )
-            }
+            write(videoData[videoDataOffset ..< videoData.count])
         }
         appendVideoData(data: data)
     }
@@ -226,13 +194,13 @@ class MpegTsWriter {
                         videoDataOffset = endOffset
                     }
                 }
-                writePacket(packet)
+                write(packet)
             }
             if videoDataOffset == videoData.count {
                 appendVideoData(data: nil)
             }
         } else {
-            writeBytes(data)
+            write(data)
         }
     }
 

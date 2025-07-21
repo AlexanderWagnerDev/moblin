@@ -6,9 +6,10 @@ import Foundation
 import Network
 
 protocol SrtlaDelegate: AnyObject {
-    func srtlaReady(port: UInt16)
+    func srtlaReady()
     func srtlaError(message: String)
     func moblinkStreamerDestinationAddress(address: String, port: UInt16)
+    func srtlaReceivedPacket(packet: Data)
 }
 
 private enum State {
@@ -16,7 +17,6 @@ private enum State {
     case waitForRemoteSocketConnected
     case waitForGroupId
     case waitForRegistered
-    case waitForLocalSocketListening
     case running
 }
 
@@ -28,7 +28,6 @@ let srtlaClientQueue = DispatchQueue(label: "com.eerimoq.srtla-client")
 
 class SrtlaClient: NSObject {
     private var remoteConnections: [RemoteConnection] = []
-    private var localListener: LocalListener?
     private weak var delegate: (any SrtlaDelegate)?
     private let passThrough: Bool
     private var connectTimer = SimpleTimer(queue: srtlaClientQueue)
@@ -128,7 +127,6 @@ class SrtlaClient: NSObject {
                 self.stopRemote(connection: connection)
             }
             self.remoteConnections = []
-            self.stopListener()
             self.cancelConnectTimer()
             self.state = .idle
             self.networkPathMonitor.cancel()
@@ -340,38 +338,13 @@ class SrtlaClient: NSObject {
     }
 
     private func startListener() {
-        guard localListener == nil else {
-            return
-        }
-        localListener = LocalListener()
-        localListener!.onReady = handleLocalReady(port:)
-        localListener!.onError = handleLocalError
-        localListener!.start()
-        state = .waitForLocalSocketListening
-    }
-
-    private func stopListener() {
-        localListener?.stop()
-        localListener?.onReady = nil
-        localListener?.onError = nil
-        localListener = nil
-    }
-
-    private func handleLocalReady(port: UInt16) {
-        guard state == .waitForLocalSocketListening else {
-            return
-        }
         state = .running
-        delegate?.srtlaReady(port: port)
+        delegate?.srtlaReady()
         cancelConnectTimer()
     }
 
     private func cancelConnectTimer() {
         connectTimer.stop()
-    }
-
-    private func handleLocalError(message: String) {
-        onDisconnected(message: message)
     }
 
     private func onDisconnected(message: String) {
@@ -446,7 +419,7 @@ extension SrtlaClient: RemoteConnectionDelegate {
     }
 
     func remoteConnectionPacketHandler(packet: Data) {
-        localListener?.sendPacket(packet: packet)
+        delegate?.srtlaReceivedPacket(packet: packet)
         totalByteCount += Int64(packet.count)
     }
 

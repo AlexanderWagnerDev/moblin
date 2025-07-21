@@ -304,10 +304,7 @@ final class Media: NSObject {
         guard let adaptiveBitrate else {
             return nil
         }
-        // This one blocks if srt_connect() has not returned.
-        guard let sndData = srtStream?.getSndData() else {
-            return nil
-        }
+        let sndData = stats.pktFlightSize
         adaptiveBitrate.update(stats: StreamStats(
             rttMs: stats.msRtt,
             packetsInFlight: Double(sndData),
@@ -484,41 +481,8 @@ final class Media: NSObject {
         return queryItems.contains(where: { parameter in parameter.name == name })
     }
 
-    func makeLocalhostSrtUrl(
-        url: String,
-        port: UInt16,
-        latency: Int32,
-        overheadBandwidth: Int32,
-        maximumBandwidthFollowInput: Bool
-    ) -> URL? {
-        guard let url = URL(string: url) else {
-            return nil
-        }
-        guard let localUrl = URL(string: "srt://localhost:\(port)") else {
-            return nil
-        }
-        var urlComponents = URLComponents(url: localUrl, resolvingAgainstBaseURL: false)!
-        urlComponents.query = url.query
-        var queryItems: [URLQueryItem] = urlComponents.queryItems ?? []
-        if !queryContains(queryItems: queryItems, name: "latency") {
-            logger.info("Setting SRT latency to \(latency)")
-            queryItems.append(URLQueryItem(name: "latency", value: String(latency)))
-        }
-        if !queryContains(queryItems: queryItems, name: "maxbw") {
-            if maximumBandwidthFollowInput {
-                logger.info("Setting SRT maxbw to 0 (follows input)")
-                queryItems.append(URLQueryItem(name: "maxbw", value: "0"))
-            }
-        }
-        if !queryContains(queryItems: queryItems, name: "oheadbw") {
-            logger.info("Setting SRT oheadbw to \(overheadBandwidth)")
-            queryItems.append(URLQueryItem(
-                name: "oheadbw",
-                value: String(overheadBandwidth)
-            ))
-        }
-        urlComponents.queryItems = queryItems
-        return urlComponents.url
+    private func makeStreamId(url: String) -> String {
+        return URL(string: url)?.dictionaryFromQuery()["streamid"] ?? ""
     }
 
     func rtmpStartStream(url: String,
@@ -1013,37 +977,10 @@ extension Media: ProcessorDelegate {
 }
 
 extension Media: SrtlaDelegate {
-    func srtlaReady(port: UInt16) {
+    func srtlaReady() {
         processorControlQueue.async {
-            do {
-                try self.srtStream?.open(self.makeLocalhostSrtUrl(
-                    url: self.srtUrl,
-                    port: port,
-                    latency: self.latency,
-                    overheadBandwidth: self.overheadBandwidth,
-                    maximumBandwidthFollowInput: self.maximumBandwidthFollowInput
-                )) { [weak self] data in
-                    guard let self else {
-                        return false
-                    }
-                    if let srtla = self.srtlaClient {
-                        srtlaClientQueue.async {
-                            srtla.handleLocalPacket(packet: data)
-                        }
-                    }
-                    return true
-                }
-                DispatchQueue.main.async {
-                    self.srtConnected = true
-                    self.delegate?.mediaOnSrtConnected()
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.delegate?.mediaOnSrtDisconnected(
-                        String(localized: "SRT connect failed with \(error.localizedDescription)")
-                    )
-                }
-            }
+            self.srtStream?.open(streamId: self.makeStreamId(url: self.srtUrl),
+                                 latency: UInt16(self.latency))
         }
     }
 
@@ -1058,6 +995,10 @@ extension Media: SrtlaDelegate {
         DispatchQueue.main.async {
             self.delegate?.mediaStrlaRelayDestinationAddress(address: address, port: port)
         }
+    }
+
+    func srtlaReceivedPacket(packet: Data) {
+        srtStream?.inputPacket(packet: packet)
     }
 }
 
@@ -1085,11 +1026,22 @@ extension Media: RistStreamDelegate {
 }
 
 extension Media: SrtStreamDelegate {
-    func srtStreamError() {
+    func srtStreamConnected() {
+        DispatchQueue.main.async {
+            self.srtConnected = true
+            self.delegate?.mediaOnSrtConnected()
+        }
+    }
+
+    func srtStreamDisconnected() {
         DispatchQueue.main.async {
             self.srtConnected = false
         }
         srtlaError(message: String(localized: "SRT disconnected"))
+    }
+
+    func srtStreamOutput(packet: Data) {
+        srtlaClient?.handleLocalPacket(packet: packet)
     }
 }
 
